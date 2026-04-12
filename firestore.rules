@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
+    }
+
+    function isProvider() {
+      return isAuthenticated() && request.auth.token.role == 'provider';
+    }
+
+    function isNotSuspended() {
+      return !('suspendedUntil' in resource.data) ||
+             resource.data.suspendedUntil == null ||
+             resource.data.suspendedUntil < request.time;
+    }
+
+    // Protected fields — only Cloud Functions can write these
+    function notWritingProtectedFields() {
+      return !request.resource.data.keys().hasAny([
+        'rating', 'plan', 'isVerified', 'searchKeywords',
+        'completionPercentage', 'responseRate'
+      ]);
+    }
+
+    function validTransition(from, to, allowed) {
+      return resource.data.status == from && request.resource.data.status == to &&
+             to in allowed;
+    }
+
+    // ─── users/{uid} ───────────────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid) || isAdmin();
+      // role field protected: only Cloud Functions via Admin SDK
+    }
+
+    // ─── providers/{uid} ───────────────────────────────────────────────────────
+    match /providers/{uid} {
+      allow read: if true; // public
+      allow write: if (isOwner(uid) && notWritingProtectedFields()) || isAdmin();
+    }
+
+    // ─── categories/ ───────────────────────────────────────────────────────────
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── service_requests/ ─────────────────────────────────────────────────────
+    match /service_requests/{requestId} {
+      allow read: if isAuthenticated() &&
+                    (request.auth.uid == resource.data.clientId ||
+                     request.auth.uid == resource.data.providerId ||
+                     isAdmin());
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.clientId &&
+                       isNotSuspended();
+      allow update: if isAuthenticated() &&
+                       (request.auth.uid == resource.data.clientId ||
+                        request.auth.uid == resource.data.providerId ||
+                        isAdmin());
+
+      // ─── messages/ (subcollection) ─────────────────────────────────────────
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() &&
+                       (request.auth.uid == get(/databases/$(database)/documents/service_requests/$(requestId)).data.clientId ||
+                        request.auth.uid == get(/databases/$(database)/documents/service_requests/$(requestId)).data.providerId);
+        allow create: if isAuthenticated() &&
+                         request.auth.uid == request.resource.data.senderId &&
+                         request.resource.data.type == 'user';
+        // system messages only created by Cloud Functions
+      }
+    }
+
+    // ─── reviews/ ──────────────────────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.clientId;
+      allow update: if isAdmin(); // admin can hide reviews
+    }
+
+    // ─── reports/ ──────────────────────────────────────────────────────────────
+    match /reports/{reportId} {
+      allow read: if isAdmin() ||
+                    (isAuthenticated() && request.auth.uid == resource.data.reporterId);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+    }
+
+    // ─── subscriptions/{uid} ───────────────────────────────────────────────────
+    match /subscriptions/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+
+    // ─── notifications/{uid}/items/ ────────────────────────────────────────────
+    match /notifications/{uid}/items/{notifId} {
+      allow read: if isOwner(uid);
+      allow update: if isOwner(uid) &&
+                       request.resource.data.keys().hasOnly(['read']); // only read field
+      allow create: if false; // Cloud Functions only
+    }
+
+    // ─── verification_requests/ ────────────────────────────────────────────────
+    match /verification_requests/{requestId} {
+      allow read: if isAdmin() ||
+                    (isAuthenticated() && request.auth.uid == resource.data.uid);
+      allow create: if isAuthenticated() &&
+                       request.auth.uid == request.resource.data.uid;
+      allow update: if isAdmin();
+    }
+
+    // ─── admin_log/ ────────────────────────────────────────────────────────────
+    match /admin_log/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Cloud Functions only
+    }
+  }
+}

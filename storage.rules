@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'admin';
+    }
+
+    // Allowed MIME types — Security E.5
+    function isAllowedImageType() {
+      return request.resource.contentType.matches('image/jpeg') ||
+             request.resource.contentType.matches('image/png') ||
+             request.resource.contentType.matches('image/webp');
+    }
+
+    // Max 5MB per file — Security E.5
+    function isUnderSizeLimit() {
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+
+    function isValidUpload() {
+      return isAllowedImageType() && isUnderSizeLimit();
+    }
+
+    // Profile photos: users/{uid}/profile/
+    match /users/{uid}/profile/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(uid) && isValidUpload();
+    }
+
+    // Portfolio photos: providers/{uid}/portfolio/
+    match /providers/{uid}/portfolio/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(uid) && isValidUpload();
+    }
+
+    // Service request attachments: requests/{requestId}/attachments/
+    match /requests/{requestId}/attachments/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidUpload();
+    }
+
+    // Verification documents: verification/{uid}/ — restricted
+    match /verification/{uid}/{fileName} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid) && isValidUpload();
+    }
+  }
+}

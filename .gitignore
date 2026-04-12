@@ -1,0 +1,115 @@
+# ─── SECRETS & SENSITIVE DATA ─────────────────────────────────────────────────
+# Firebase config files — NEVER commit these
+google-services.json
+GoogleService-Info.plist
+.firebaserc
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Firebase service account keys
+*-service-account*.json
+firebase-adminsdk*.json
+serviceAccountKey.json
+
+# Cloud Functions env config
+functions/.env
+functions/.env.*
+!functions/.env.example
+functions/.secret.local
+
+# ─── FLUTTER / DART ──────────────────────────────────────────────────────────
+# Build outputs
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Generated files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Coverage
+coverage/
+
+# Pub cache (always use pubspec.lock, not the cache)
+.pub-cache/
+.pub/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/GoogleService-Info.plist
+
+# Android
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+android/app/google-services.json
+android/app/debug.keystore
+android/app/upload-keystore.jks
+*.jks
+*.keystore
+
+# macOS
+macos/Pods/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Web
+web/favicon.png
+
+# ─── FIREBASE / FUNCTIONS ────────────────────────────────────────────────────
+# Compiled TypeScript output
+functions/lib/
+
+# Node modules
+functions/node_modules/
+
+# Firebase debug logs
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+pubsub-debug.log
+database-debug.log
+storage-debug.log
+
+# Firebase emulator export data
+.firebase/
+emulator-data/
+
+# ─── MACOS / OS ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V8
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# ─── MISC ────────────────────────────────────────────────────────────────────
+*.log
+*.lock
+!pubspec.lock
+!package-lock.json
