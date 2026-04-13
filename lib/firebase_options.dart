@@ -70,7 +70,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1032905455324',
     projectId: 'changaya-dev',
     storageBucket: 'changaya-dev.firebasestorage.app',
-    iosClientId: '1032905455324-b2pcaan0mh1sce9j8th3tmmpeuan4ve3.apps.googleusercontent.com',
+    iosClientId:
+        '1032905455324-b2pcaan0mh1sce9j8th3tmmpeuan4ve3.apps.googleusercontent.com',
     iosBundleId: 'com.changaya.app',
   );
 }
