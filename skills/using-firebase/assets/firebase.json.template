@@ -7,6 +7,7 @@
     {
       "source": "functions",
       "codebase": "default",
+      "runtime": "nodejs20",
       "ignore": [
         "node_modules",
         ".git",
@@ -20,22 +21,59 @@
       ]
     }
   ],
-  "storage": {
-    "rules": "storage.rules"
-  },
   "hosting": {
-    "public": "build/web",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
+      {
+        "source": "/api/**",
+        "function": {
+          "functionId": "api",
+          "region": "us-central1"
+        }
+      },
       {
         "source": "**",
         "destination": "/index.html"
       }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|js|css|woff2)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "X-XSS-Protection",
+            "value": "1; mode=block"
+          }
+        ]
+      }
     ]
+  },
+  "storage": {
+    "rules": "storage.rules"
   },
   "emulators": {
     "auth": {
@@ -47,30 +85,16 @@
     "firestore": {
       "port": 8080
     },
-    "storage": {
-      "port": 9199
-    },
     "hosting": {
       "port": 5000
+    },
+    "storage": {
+      "port": 9199
     },
     "ui": {
       "enabled": true,
       "port": 4000
     },
     "singleProjectMode": true
-  },
-  "flutter": {
-    "platforms": {
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "changaya-dev",
-          "configurations": {
-            "android": "1:1032905455324:android:a86b3d4d0a69c885bb6619",
-            "ios": "1:1032905455324:ios:b9d57bfc640e5c46bb6619",
-            "web": "1:1032905455324:web:01331e4976d5984abb6619"
-          }
-        }
-      }
-    }
   }
 }
