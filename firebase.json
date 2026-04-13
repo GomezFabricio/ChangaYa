@@ -58,5 +58,19 @@
       "port": 4000
     },
     "singleProjectMode": true
+  },
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "changaya-dev",
+          "configurations": {
+            "android": "1:1032905455324:android:a86b3d4d0a69c885bb6619",
+            "ios": "1:1032905455324:ios:b9d57bfc640e5c46bb6619",
+            "web": "1:1032905455324:web:01331e4976d5984abb6619"
+          }
+        }
+      }
+    }
   }
 }
