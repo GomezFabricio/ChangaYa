@@ -1,0 +1,29 @@
+{
+  "name": "changaya",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GomezFabricio/ChangaYa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GomezFabricio/ChangaYa/issues"
+  },
+  "homepage": "https://github.com/GomezFabricio/ChangaYa#readme",
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}
