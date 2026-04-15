@@ -1,0 +1,17 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Cleartext HTTP permitido solo en builds de debug.
+         Necesario para conectar con Firebase Emulator Suite (HTTP en localhost
+         / 10.0.2.2). Producción NO se ve afectada — este manifest se mergea
+         únicamente en buildType=debug.
+         Ver docs/troubleshooting.md (2026-04-13). -->
+    <application
+        android:usesCleartextTraffic="true"
+        tools:replace="android:usesCleartextTraffic"
+        xmlns:tools="http://schemas.android.com/tools" />
+</manifest>

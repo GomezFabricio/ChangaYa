@@ -66,6 +66,20 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 # Web
 web/favicon.png
 
+# ─── NODE.JS / NPM (root) ────────────────────────────────────────────────────
+# Dependencies instaladas (Playwright E2E). Las fuentes de verdad son
+# package.json + package-lock.json — node_modules/ se regenera con npm install.
+node_modules/
+
+# ─── E2E PLAYWRIGHT ──────────────────────────────────────────────────────────
+# Screenshots generados por los tests E2E — artefactos, no fuente.
+e2e/screenshots/
+
+# Test results / reports de Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
 # ─── FIREBASE / FUNCTIONS ────────────────────────────────────────────────────
 # Compiled TypeScript output
 functions/lib/
