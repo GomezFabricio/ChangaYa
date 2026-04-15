@@ -113,8 +113,8 @@ flutter build web --release -t lib/main_prod.dart
 |---------|-----------|
 | `lib/main.dart` | Entry genérico (no usado directamente) |
 | `lib/main_dev.dart` | Dev — conecta a Firebase Emulator Suite |
-| `lib/main_prod.dart` | Producción — Firebase real |
-| `lib/main_staging.dart` | ⏳ Pendiente — Firebase staging real |
+| `lib/main_staging.dart` | Staging — Firebase real (proyecto `changaya-dev`, sin emuladores) |
+| `lib/main_prod.dart` | Producción — Firebase real (proyecto `changaya-prod`, pendiente) |
 
 La diferencia entre entry points se limita a la inicialización de Firebase
 (conectar o no a emuladores). Toda la lógica de la app vive en `AppRoot` y
@@ -424,11 +424,26 @@ reaccione a cambios de estado automáticamente.
 
 ## 7. Entornos
 
-| Entorno | Entry point | Infra |
-|---------|-------------|-------|
-| **Desarrollo** | `lib/main_dev.dart` | Firebase Emulator Suite local |
-| **Staging** | `lib/main_staging.dart` (⏳ pendiente) | Firebase project `changaya-staging` |
-| **Producción** | `lib/main_prod.dart` | Firebase project `changaya-prod` |
+| Entorno | Entry point | Infra | Firebase Project |
+|---------|-------------|-------|------------------|
+| **Desarrollo** | `lib/main_dev.dart` | Firebase Emulator Suite local | `changaya-dev` (override a emuladores) |
+| **Staging** | `lib/main_staging.dart` | Firebase real (sin emuladores) | `changaya-dev` |
+| **Producción** | `lib/main_prod.dart` | Firebase real | `changaya-prod` (⏳ por crear) |
+
+**Decisión de simplificación:** staging comparte el proyecto Firebase
+(`changaya-dev`) con dev en vez de usar un proyecto separado (`changaya-staging`).
+Razonamiento:
+- Dev usa emuladores locales — nunca toca la nube real del proyecto.
+- Staging usa backend real del mismo proyecto — separado en la práctica.
+- Un solo-dev no necesita 3 proyectos separados (YAGNI). Cuando escale el
+  equipo, se crea `changaya-staging` como proyecto aparte — refactor mecánico.
+
+Cuando se cree `changaya-prod`:
+```bash
+flutterfire configure --project=changaya-prod --out=lib/firebase_options_prod.dart
+```
+Y se actualiza `main_prod.dart` para importar `firebase_options_prod.dart`
+en lugar del `firebase_options.dart` actual (que apunta a `changaya-dev`).
 
 ### 7.1 La app es la misma, solo cambia la puerta de entrada
 
@@ -436,17 +451,24 @@ Los entry points son **minúsculos** y solo se ocupan de inicializar Firebase.
 Toda la lógica de feature vive en `AppRoot` (`lib/app/app.dart`) y es
 compartida entre entornos.
 
-Diferencia real entre `main_dev.dart` y `main_prod.dart`:
+Diferencia real entre los tres entry points:
 
 ```dart
-// main_dev.dart
+// main_dev.dart — APUNTA a emuladores locales
 await FirebaseAuth.instance.useAuthEmulator(emulatorHost, 9099);
 FirebaseFirestore.instance.useFirestoreEmulator(emulatorHost, 8080);
 await FirebaseStorage.instance.useStorageEmulator(emulatorHost, 9199);
 
-// main_prod.dart
-// (nada — Firebase apunta a los servidores reales por default)
+// main_staging.dart — Firebase REAL (proyecto changaya-dev)
+// (nada — Firebase apunta a los servidores reales)
+
+// main_prod.dart — Firebase REAL (proyecto changaya-prod)
+// (nada — mismo que staging pero con otro proyecto)
 ```
+
+**El `AppConfig` enum** (`lib/core/constants/app_config.dart`) expone
+`isDev`, `isStaging`, `isProd` para lógica diferenciada por entorno cuando
+haga falta (ej: distintos endpoints de pagos, feature flags, niveles de log).
 
 ### 7.2 Host para emuladores (detección por plataforma)
 
@@ -823,7 +845,7 @@ Ver también [`troubleshooting.md`](troubleshooting.md) para bugs resueltos y su
 | Item | Archivo/área | Prioridad | Memoria engram |
 |------|--------------|-----------|----------------|
 | Photo picker en CompleteProfileScreen | `lib/features/profile/presentation/screens/complete_profile_screen.dart` | Baja | `techdebt/profile-photo-upload` |
-| Setup `main_staging.dart` + Firebase staging project | `lib/main_staging.dart` (no existe) | Media | — |
+| Crear proyecto Firebase `changaya-prod` + `firebase_options_prod.dart` para el entry point de producción | `lib/main_prod.dart` | Alta (bloqueante para lanzar) | — |
 | Migrar scripts E2E a `npx playwright test` runner | `e2e/*.js` | Baja | — |
 | Reemplazar click por coordenadas del dropdown en E2E | `e2e/auth_flow_test.js` | Baja | — |
 | Toggle de theme light/dark manual en settings | `lib/app/app.dart` | Baja | — (tech debt nuevo) |
@@ -1013,4 +1035,4 @@ Agregar una nueva subsección `## 9.X I-XX — [Nombre del incremento]` con:
 
 ---
 
-**Última actualización:** 2026-04-14 — agregada Sección 12 (CI/CD y Deployment) con workflows `ci.yml` y `deploy.yml`, branch protection rulesets, y diagrama de flujo Git.
+**Última actualización:** 2026-04-15 — agregado entorno staging (`lib/main_staging.dart` + `AppConfig.staging`) que apunta a Firebase real del proyecto `changaya-dev` sin emuladores. Sección 7 (Entornos) y 2 (Quick Reference) actualizadas.
