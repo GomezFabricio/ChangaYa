@@ -22,10 +22,17 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.changaya"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // Application ID registrado en Firebase project changaya-dev.
+        // NO cambiar sin actualizar google-services.json y re-registrar
+        // en Firebase Console (el SHA-1 fingerprint esta asociado al par
+        // applicationId + keystore).
+        //
+        // NOTA: el namespace Kotlin interno ("com.example.changaya" arriba)
+        // puede diferir del applicationId — son conceptos independientes en
+        // Android Gradle Plugin. El namespace afecta solo al paquete Java/Kotlin,
+        // el applicationId es el ID publico de la app en Play Store y el que
+        // Firebase/Google Services matchean.
+        applicationId = "com.changaya.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
