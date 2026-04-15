@@ -37,7 +37,7 @@ async function clearFirestore(): Promise<void> {
 }
 
 function makeUserRecord(
-  overrides: Partial<admin.auth.UserRecord>
+  overrides: Partial<admin.auth.UserRecord>,
 ): admin.auth.UserRecord {
   return {
     uid: "test-uid",
@@ -69,7 +69,7 @@ describe("onUserCreate", () => {
       const email = "test@example.com";
 
       await onUserCreateHandler(
-        makeUserRecord({ uid, email, emailVerified: false })
+        makeUserRecord({ uid, email, emailVerified: false }),
       );
 
       const db = admin.firestore();
@@ -111,7 +111,7 @@ describe("onUserCreate", () => {
           email: "google@example.com",
           emailVerified: true,
           photoURL: "https://photo.url",
-        })
+        }),
       );
 
       const db = admin.firestore();
@@ -142,7 +142,7 @@ describe("onUserCreate", () => {
           uid,
           email: "new@example.com",
           emailVerified: false,
-        })
+        }),
       );
 
       // El documento original no debe haber cambiado
@@ -164,13 +164,15 @@ describe("onUserCreate", () => {
       jest.spyOn(db, "batch").mockReturnValueOnce({
         ...realBatch,
         set: jest.fn(),
-        commit: jest.fn().mockRejectedValueOnce(new Error("Simulated batch failure")),
+        commit: jest
+          .fn()
+          .mockRejectedValueOnce(new Error("Simulated batch failure")),
       } as unknown as admin.firestore.WriteBatch);
 
       await expect(
         onUserCreateHandler(
-          makeUserRecord({ uid, email: "atomic@example.com" })
-        )
+          makeUserRecord({ uid, email: "atomic@example.com" }),
+        ),
       ).rejects.toThrow("Simulated batch failure");
 
       // Verificar que ningún documento fue escrito

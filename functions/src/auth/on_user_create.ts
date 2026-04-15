@@ -10,7 +10,7 @@ import * as functions from "firebase-functions";
  * SC-H-03: Batch atómico — ambos documentos o ninguno.
  */
 export async function onUserCreateHandler(
-  user: admin.auth.UserRecord
+  user: admin.auth.UserRecord,
 ): Promise<void> {
   const db = admin.firestore();
 

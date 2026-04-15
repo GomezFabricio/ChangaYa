@@ -117,6 +117,12 @@ void main() {
       'should_render_button_and_not_throw_when_tapped',
       (tester) async {
         when(mockRepo.reloadUser()).thenAnswer((_) async {});
+        // Tras reloadUser, el screen lee repo.currentUser para decidir si
+        // navega (patrón híbrido declarativo + imperativo). Stub: user con
+        // emailVerified=false, entonces no debe intentar navegar.
+        when(
+          mockRepo.currentUser,
+        ).thenReturn(unverifiedUser);
 
         await tester.pumpWidget(buildEmailVerificationScreen());
         await tester.pump();

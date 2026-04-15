@@ -38,7 +38,8 @@ void main() {
       (tester) async {
         // Datos del test — email único por corrida para evitar colisiones
         // (aunque setUp limpia, ayuda en debug si algo queda colgado).
-        final email = 'test_${DateTime.now().millisecondsSinceEpoch}@changaya.test';
+        final email =
+            'test_${DateTime.now().millisecondsSinceEpoch}@changaya.test';
         const password = 'Test1234';
         const name = 'Juan Pérez';
         const phone = '03624 123456';
@@ -97,8 +98,7 @@ void main() {
           tester,
           () => find.text('Completá tu perfil').evaluate().isNotEmpty,
           timeout: const Duration(seconds: 10),
-          reason:
-              'Tras verificar email debería navegar a /complete-profile',
+          reason: 'Tras verificar email debería navegar a /complete-profile',
         );
 
         // 5. Llenar form de onboarding.
